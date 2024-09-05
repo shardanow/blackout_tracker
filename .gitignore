@@ -1,0 +1,4 @@
+config.json
+chat_ids.json
+/schedules
+__pycache__/
