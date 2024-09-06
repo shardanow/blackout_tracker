@@ -2,9 +2,10 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
 import json
+from utils.debug_logger import print_debug_message
 
 # Loading configuration
-from config import config
+from config.config import config
 
 bot = Bot(token=config['TELEGRAM_BOT_TOKEN'])
 dp = Dispatcher()
@@ -44,4 +45,4 @@ async def broadcast_message(message_text):
         try:
             await bot.send_message(chat_id=chat_id, text=message_text, parse_mode=ParseMode.HTML)
         except Exception as e:
-            print(f"Failed to send message to {chat_id}: {e}")
+            print_debug_message(f"Failed to send message to {chat_id}: {e}")

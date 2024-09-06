@@ -1,10 +1,12 @@
 import aiohttp
+from utils.debug_logger import print_debug_message
+from config.config import config
 
 url = 'https://svitlo.oe.if.ua/GAVTurnOff/GavGroupByAccountNumber'
 form_data = {
     'accountNumber': '',
     'userSearchChoice': 'pob',
-    'address': 'Івано-Франківськ,Національної Гвардії,14Т'
+    'address': {config['USER_ADRESS']}
 }
 
 async def fetch_data():
@@ -13,5 +15,5 @@ async def fetch_data():
             if response.status == 200:
                 return await response.json()
             else:
-                print(f"Failed to retrieve data. Status code: {response.status}")
+                print_debug_message(f"Failed to retrieve data. Status code: {response.status}")
                 return None

@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime
-from config import config
+from config.config import config
 
 # Ensure the schedules folder exists
 if not os.path.exists(config['SCHEDULES_FOLDER']):
@@ -56,22 +56,40 @@ def format_event_date(event_date_str):
     russian_month = months.get(month).capitalize()
     return f"{russian_weekday}, {day} {russian_month}"
 
+def correct_hour_form(hours):
+    if hours % 10 == 1 and hours % 100 != 11:
+        return f"{hours} час"
+    elif 2 <= hours % 10 <= 4 and not (12 <= hours % 100 <= 14):
+        return f"{hours} часа"
+    else:
+        return f"{hours} часов"
+
+def correct_minute_form(minutes):
+    if 2 <= minutes % 10 <= 4 and not (12 <= minutes % 100 <= 14):
+        return f"{minutes} минуты"
+    else:
+        return f"{minutes} минут"
+
 def build_schedule_message(hours_list, day_label, event_date_str):
     grouped_hours = group_consecutive_hours(hours_list)
     formatted_date = format_event_date(event_date_str)
     message = f"🗒️ <b>{day_label} график отключений.\n📆 {formatted_date}.</b>\n\n"
+    message += f"⏳ <b>Время отключения:</b>"
     total_outage_duration = 0
     for group in grouped_hours:
-        message += f"📍 <i>С <b>{group['start_time']}</b> до <b>{group['end_time']}</b></i> — без электричества на {group['total_hours']} час(ов).\n"
+        message += f"🕒 С <i><b>{group['start_time']}</b></i> до <i><b>{group['end_time']}</b></i> — на <b><i>{group['total_hours']}</i> {correct_hour_form(group['total_hours'])}</b>.\n"
         total_outage_duration += group['total_hours']
     if total_outage_duration > 0:
-        message += f"\n📊 <b>Итого без электричества: {total_outage_duration} час(ов)</b>\n"
+        message += f"\n📊 <b>Без электричества за день: <i>{total_outage_duration}</i> {correct_hour_form(total_outage_duration)}</b>\n"
     else:
-        message += "⚡️ <b>Электричество будет доступно весь день!</b>\n"
+        message += "⚡️ <b>Электричество будет доступно весь день!</b> 🎉"
     return message
 
 def build_no_schedule_message(day_label):
-    return f"⚡️ <b>На {day_label} день отключений не запланировано.</b>"
+    return f"⚡️ <b>На {day_label} день отключений не запланировано!</b> 🎉"
+
+def build_notify_users_message(minutes_label):
+    return f"📢 <b>Внимание!</b>\n📍 <i>Через <b>{minutes_label} {correct_minute_form(minutes_label)}</b> отключат электричетво!</i>"
 
 # Helper function to group consecutive hours
 def group_consecutive_hours(hours_list):
